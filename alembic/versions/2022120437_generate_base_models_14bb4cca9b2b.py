@@ -1,8 +1,8 @@
 """Generate base models
 
-Revision ID: c892a9642c00
+Revision ID: 14bb4cca9b2b
 Revises: 
-Create Date: 2022-12-03 23:30:30.547745
+Create Date: 2022-12-04 01:37:05.355080
 
 """
 import sqlalchemy as sa
@@ -10,18 +10,10 @@ import sqlalchemy_utils
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "c892a9642c00"
+revision = "14bb4cca9b2b"
 down_revision = None
 branch_labels = None
 depends_on = None
-
-RUSSIAN = "ru"
-ENGLISH = "en"
-
-LANGUAGE_TYPES = [
-    (RUSSIAN, "Russian"),
-    (ENGLISH, "English")
-]
 
 DAILY = "daily"
 WEEKLY = "weekly"
@@ -33,6 +25,14 @@ REPEAT_TYPES = [
     (WEEKLY, WEEKLY),
     (MONTHLY, MONTHLY),
     (YEARLY, YEARLY)
+]
+
+RUSSIAN = "ru"
+ENGLISH = "en"
+
+LANGUAGE_TYPES = [
+    (RUSSIAN, "Russian"),
+    (ENGLISH, "English")
 ]
 
 
@@ -86,6 +86,7 @@ def upgrade():
         sa.Column("to_user_id", sa.Integer(), nullable=True),
         sa.Column("payment_id", sa.Integer(), nullable=True),
         sa.Column("reminder_id", sa.Integer(), nullable=True),
+        sa.Column("completed", sa.Boolean(), nullable=False),
         sa.ForeignKeyConstraint(["from_user_id"], ["user.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["payment_id"], ["payment.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["reminder_id"], ["reminder.id"], ondelete="CASCADE"),

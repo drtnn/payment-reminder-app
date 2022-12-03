@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from sqlalchemy import Column, String, ForeignKey, Float, Integer
+from sqlalchemy import Column, String, ForeignKey, Float, Integer, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import CurrencyType, PhoneNumberType
 
@@ -35,6 +35,7 @@ class InterUserPayment:
     to_user_id: int = field(metadata={"sa": Column(ForeignKey("user.id", ondelete="CASCADE"))})
     payment_id: int = field(metadata={"sa": Column(ForeignKey("payment.id", ondelete="CASCADE"))})
     reminder_id: int = field(metadata={"sa": Column(ForeignKey("reminder.id", ondelete="CASCADE"))})
+    completed: bool = field(metadata={"sa": Column(Boolean, default=False, nullable=False)})
 
     from_user: User = relationship("User", foreign_keys=[from_user_id])
     to_user: User = relationship("User", foreign_keys=[to_user_id])
