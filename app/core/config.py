@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import Literal
 
 import toml
-from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn, validator
+from pydantic import AnyHttpUrl, BaseSettings
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
 PYPROJECT_CONTENT = toml.load(f"{PROJECT_DIR}/pyproject.toml")["tool"]["poetry"]
@@ -43,24 +43,12 @@ class Settings(BaseSettings):
     DESCRIPTION: str = PYPROJECT_CONTENT["description"]
 
     # POSTGRESQL DEFAULT DATABASE
-    DEFAULT_DATABASE_HOSTNAME: str
-    DEFAULT_DATABASE_USER: str
-    DEFAULT_DATABASE_PASSWORD: str
-    DEFAULT_DATABASE_PORT: str
-    DEFAULT_DATABASE_DB: str
-    DEFAULT_SQLALCHEMY_DATABASE_URI: str = ""
-
-    @staticmethod
-    @validator("DEFAULT_SQLALCHEMY_DATABASE_URI")
-    def _assemble_default_db_connection(v: str, values: dict[str, str]) -> str:
-        return PostgresDsn.build(
-            scheme="postgresql+asyncpg",
-            user=values["DEFAULT_DATABASE_USER"],
-            password=values["DEFAULT_DATABASE_PASSWORD"],
-            host=values["DEFAULT_DATABASE_HOSTNAME"],
-            port=values["DEFAULT_DATABASE_PORT"],
-            path=f"/{values['DEFAULT_DATABASE_DB']}",
-        )
+    DATABASE_HOSTNAME: str = "localhost"
+    DATABASE_USER: str = "postgres"
+    DATABASE_PASSWORD: str = "postgres"
+    DATABASE_PORT: str = "5432"
+    DATABASE_DB: str = "postgres"
+    DATABASE_URI: str = f"postgresql+asyncpg://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_HOSTNAME}:{DATABASE_PORT}/{DATABASE_DB}"
 
     class Config:
         case_sensitive = True

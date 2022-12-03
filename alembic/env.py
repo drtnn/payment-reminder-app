@@ -1,12 +1,13 @@
+import asyncio
 from logging.config import fileConfig
 
+from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import AsyncEngine
-import asyncio
-from app.core import config as app_config
-from alembic import context
 
+from app.core import config as app_config
+from app.models.base import Model
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -20,9 +21,9 @@ fileConfig(config.config_file_name)  # type: ignore
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from app.models import Base
 
-target_metadata = Base.metadata
+target_metadata = Model.metadata
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -31,7 +32,7 @@ target_metadata = Base.metadata
 
 
 def get_database_uri():
-    return app_config.settings.DEFAULT_SQLALCHEMY_DATABASE_URI
+    return app_config.settings.DATABASE_URI
 
 
 def run_migrations_offline():
