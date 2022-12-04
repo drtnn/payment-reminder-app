@@ -1,18 +1,14 @@
-from dataclasses import dataclass, field
+from dataclasses import field
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy import Column, DateTime, String
 from sqlalchemy_utils import ChoiceType
 
-from app.models.base import Model
+from app.models.base import model, IdentifiableMixin
 
 
-@Model.mapped
-@dataclass
-class Reminder:
-    __tablename__ = "reminder"
-    __sa_dataclass_metadata_key__ = "sa"
-
+@model()
+class Reminder(IdentifiableMixin):
     DAILY = "daily"
     WEEKLY = "weekly"
     MONTHLY = "monthly"
@@ -25,6 +21,5 @@ class Reminder:
         (YEARLY, YEARLY)
     ]
 
-    id: int = field(init=False, metadata={"sa": Column(Integer, primary_key=True, autoincrement=True)})
     remind_at: datetime = field(metadata={"sa": Column(DateTime, nullable=False)})
     repeat: str = field(metadata={"sa": Column(ChoiceType(REPEAT_TYPES, impl=String(7)))})

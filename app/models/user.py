@@ -1,17 +1,13 @@
-from dataclasses import dataclass, field
+from dataclasses import field
 
 from sqlalchemy import Column, String, Integer
 from sqlalchemy_utils.types.choice import ChoiceType
 
-from app.models.base import Model
+from app.models.base import model, TimestampableMixin
 
 
-@Model.mapped
-@dataclass
-class User:
-    __tablename__ = "user"
-    __sa_dataclass_metadata_key__ = "sa"
-
+@model()
+class User(TimestampableMixin):
     RUSSIAN = "ru"
     ENGLISH = "en"
 
@@ -20,7 +16,7 @@ class User:
         (ENGLISH, "English")
     ]
 
-    id: int = field(metadata={"sa": Column(Integer, primary_key=True)})
+    id: int = field(metadata={"sa": Column(Integer, primary_key=True, index=True)})
     username: str = field(metadata={"sa": Column(String(255), nullable=True, index=True)})
     full_name: str = field(metadata={"sa": Column(String(255), nullable=False)})
     language: str = field(metadata={"sa": Column(ChoiceType(LANGUAGE_TYPES, impl=String(2)), nullable=False)})

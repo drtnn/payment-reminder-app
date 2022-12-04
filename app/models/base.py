@@ -13,7 +13,39 @@ alembic revision --autogenerate -m "migration_name"
 # apply all migrations
 alembic upgrade head
 """
+from dataclasses import field, dataclass
+from typing import TypeVar
 
+from sqlalchemy import Column, Integer, DateTime, func
 from sqlalchemy.orm import registry
 
-Model = registry()
+from app.utils import camel_to_snake
+
+Base = registry()
+
+T = TypeVar('T')
+
+
+def model(abstract=False) -> T:
+    def wrapped(cls: T):
+        cls.__sa_dataclass_metadata_key__ = "sa"
+        cls.__tablename__ = camel_to_snake(cls.__name__)
+        cls.__abstract__ = abstract
+
+        dataclass(cls)
+        Base.mapped(cls)
+
+        return cls
+
+    return wrapped
+
+
+@model(abstract=True)
+class IdentifiableMixin:
+    id: int = field(init=False, metadata={"sa": Column(Integer, primary_key=True, autoincrement=True, index=True)})
+
+
+@model(abstract=True)
+class TimestampableMixin:
+    created = Column(DateTime(), server_default=func.now())
+    updated = Column(DateTime(), onupdate=func.now())

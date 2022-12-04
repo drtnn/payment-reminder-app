@@ -1,21 +1,16 @@
-from dataclasses import dataclass, field
+from dataclasses import field
 
-from sqlalchemy import Column, String, ForeignKey, Float, Integer, Boolean
+from sqlalchemy import Column, String, ForeignKey, Float, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import CurrencyType, PhoneNumberType
 
-from app.models.base import Model
+from app.models.base import model, IdentifiableMixin, TimestampableMixin
 from app.models.reminder import Reminder
 from app.models.user import User
 
 
-@Model.mapped
-@dataclass
-class Payment:
-    __tablename__ = "payment"
-    __sa_dataclass_metadata_key__ = "sa"
-
-    id: int = field(init=False, metadata={"sa": Column(Integer, primary_key=True, autoincrement=True)})
+@model()
+class Payment(IdentifiableMixin):
     sum: str = field(metadata={"sa": Column(Float, nullable=False)})
     bank: str = field(metadata={"sa": Column(String(32), nullable=False)})
     phone_number: str = field(metadata={"sa": Column(PhoneNumberType())})
@@ -23,13 +18,8 @@ class Payment:
     currency: str = field(metadata={"sa": Column(CurrencyType, nullable=False)})
 
 
-@Model.mapped
-@dataclass
-class InterUserPayment:
-    __tablename__ = "inter_user_payment"
-    __sa_dataclass_metadata_key__ = "sa"
-
-    id: int = field(init=False, metadata={"sa": Column(Integer, primary_key=True, autoincrement=True)})
+@model()
+class InterUserPayment(IdentifiableMixin, TimestampableMixin):
     title: str = field(metadata={"sa": Column(String(255), nullable=False, index=True)})
     from_user_id: int = field(metadata={"sa": Column(ForeignKey("user.id", ondelete="CASCADE"))})
     to_user_id: int = field(metadata={"sa": Column(ForeignKey("user.id", ondelete="CASCADE"))})

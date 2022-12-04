@@ -7,7 +7,7 @@ from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app.core import config as app_config
-from app.models.base import Model
+from app.models.base import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -22,7 +22,7 @@ fileConfig(config.config_file_name)  # type: ignore
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
-target_metadata = Model.metadata
+target_metadata = Base.metadata
 
 
 # other values from the config, defined by the needs of env.py,
