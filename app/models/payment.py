@@ -1,12 +1,9 @@
 from dataclasses import field
 
 from sqlalchemy import Column, String, ForeignKey, Float, Boolean
-from sqlalchemy.orm import relationship
 from sqlalchemy_utils import CurrencyType, PhoneNumberType
 
 from app.models.base import model, IdentifiableMixin, TimestampableMixin
-from app.models.reminder import Reminder
-from app.models.user import User
 
 
 @model()
@@ -27,7 +24,8 @@ class InterUserPayment(IdentifiableMixin, TimestampableMixin):
     reminder_id: int = field(metadata={"sa": Column(ForeignKey("reminder.id", ondelete="CASCADE"))})
     completed: bool = field(metadata={"sa": Column(Boolean, default=False, nullable=False)})
 
-    from_user: User = relationship("User", foreign_keys=[from_user_id])
-    to_user: User = relationship("User", foreign_keys=[to_user_id])
-    payment: Payment = relationship("Payment", foreign_keys=[payment_id])
-    reminder: Reminder = relationship("Reminder", foreign_keys=[reminder_id])
+    # Todo: fix relationships
+    # from_user: User = relationship(User, foreign_keys=[from_user_id])
+    # to_user: User = relationship(User, foreign_keys=[to_user_id])
+    # payment: Payment = relationship(Payment, foreign_keys=[payment_id])
+    # reminder: Reminder = relationship(Reminder, foreign_keys=[reminder_id])

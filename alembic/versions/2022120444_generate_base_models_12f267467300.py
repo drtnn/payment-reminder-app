@@ -70,9 +70,9 @@ def upgrade():
     op.create_table(
         "user",
         sa.Column(
-            "created", sa.DateTime(), server_default=sa.text("now()"), nullable=True
+            "created", sa.DateTime(), server_default=sa.text("now()"), nullable=False
         ),
-        sa.Column("updated", sa.DateTime(), nullable=True),
+        sa.Column("updated", sa.DateTime(), nullable=False),
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("username", sa.String(length=255), nullable=True),
         sa.Column("full_name", sa.String(length=255), nullable=False),
@@ -89,9 +89,9 @@ def upgrade():
         "inter_user_payment",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column(
-            "created", sa.DateTime(), server_default=sa.text("now()"), nullable=True
+            "created", sa.DateTime(), server_default=sa.text("now()"), nullable=False
         ),
-        sa.Column("updated", sa.DateTime(), nullable=True),
+        sa.Column("updated", sa.DateTime(), nullable=False),
         sa.Column("title", sa.String(length=255), nullable=False),
         sa.Column("from_user_id", sa.Integer(), nullable=True),
         sa.Column("to_user_id", sa.Integer(), nullable=True),
