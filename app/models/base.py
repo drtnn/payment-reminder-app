@@ -23,7 +23,7 @@ from app.utils import camel_to_snake
 
 Base = registry()
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def model(abstract=False) -> T:
