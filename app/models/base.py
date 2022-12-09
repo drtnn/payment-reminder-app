@@ -48,4 +48,4 @@ class IdentifiableMixin:
 @model(abstract=True)
 class TimestampableMixin:
     created = Column(DateTime(), server_default=func.now(), nullable=False)
-    updated = Column(DateTime(), onupdate=func.now(), nullable=False)
+    updated = Column(DateTime(), server_default=func.now(), onupdate=func.current_timestamp(), nullable=False)

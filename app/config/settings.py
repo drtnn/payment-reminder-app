@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import Literal
 
 import toml
-from pydantic import AnyHttpUrl, BaseSettings
+from pydantic import BaseSettings, AnyHttpUrl
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
 PYPROJECT_CONTENT = toml.load(f"{PROJECT_DIR}/pyproject.toml")["tool"]["poetry"]

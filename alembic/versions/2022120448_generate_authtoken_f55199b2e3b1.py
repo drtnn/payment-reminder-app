@@ -23,7 +23,9 @@ def upgrade():
         sa.Column(
             "created", sa.DateTime(), server_default=sa.text("now()"), nullable=False
         ),
-        sa.Column("updated", sa.DateTime(), nullable=False),
+        sa.Column(
+            "updated", sa.DateTime(), server_default=sa.text("now()"), nullable=False
+        ),
         sa.Column("key", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("title", sa.String(length=16), nullable=False),
         sa.PrimaryKeyConstraint("key"),

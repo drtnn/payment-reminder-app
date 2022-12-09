@@ -6,7 +6,7 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from app.core import config as app_config
+from app.config.settings import settings
 from app.models.base import Base
 
 # this is the Alembic Config object, which provides
@@ -32,7 +32,7 @@ target_metadata = Base.metadata
 
 
 def get_database_uri():
-    return app_config.settings.DATABASE_URI
+    return settings.DATABASE_URI
 
 
 def run_migrations_offline():

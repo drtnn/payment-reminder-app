@@ -5,7 +5,7 @@ name = "payment-reminder"
 version = "0.1.0-alpha"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.9"
 
 PyJWT = { extras = ["crypto"], version = "^2.5.0" }
 SQLAlchemy = { extras = ["asyncio"], version = "^1.4.41" }
