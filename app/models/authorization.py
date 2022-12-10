@@ -9,9 +9,9 @@ from app.models.base import model, TimestampableMixin
 
 @model()
 class AuthToken(TimestampableMixin):
-    key: uuid.UUID = field(
+    id: uuid.UUID = field(
         init=False,
         default_factory=uuid.uuid4,
-        metadata={"sa": Column(UUID(as_uuid=True), primary_key=True)},
+        metadata={"sa": Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)},
     )
     title: str = field(metadata={"sa": Column(String(16), nullable=False)})

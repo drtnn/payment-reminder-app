@@ -1,8 +1,8 @@
 """Generate AuthToken
 
-Revision ID: f55199b2e3b1
+Revision ID: fa04203b3f72
 Revises: 12f267467300
-Create Date: 2022-12-04 15:48:02.919778
+Create Date: 2022-12-10 01:03:11.921188
 
 """
 import sqlalchemy as sa
@@ -10,7 +10,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = "f55199b2e3b1"
+revision = "fa04203b3f72"
 down_revision = "12f267467300"
 branch_labels = None
 depends_on = None
@@ -26,9 +26,9 @@ def upgrade():
         sa.Column(
             "updated", sa.DateTime(), server_default=sa.text("now()"), nullable=False
         ),
-        sa.Column("key", postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column("id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("title", sa.String(length=16), nullable=False),
-        sa.PrimaryKeyConstraint("key"),
+        sa.PrimaryKeyConstraint("id"),
     )
     # ### end Alembic commands ###
 

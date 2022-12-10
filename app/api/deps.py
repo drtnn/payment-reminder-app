@@ -18,7 +18,7 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
 
 async def get_auth_token(session: AsyncSession, authorization: str) -> Optional[AuthToken]:
     token = authorization.replace(BearerTokenAuthorization.BEARER, "").strip()
-    auth_token: Optional[AuthToken] = (await session.execute(select(AuthToken).where(AuthToken.key == token))).first()
+    auth_token: Optional[AuthToken] = (await session.execute(select(AuthToken).where(AuthToken.id == token))).first()
     return auth_token
 
 

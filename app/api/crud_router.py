@@ -1,5 +1,7 @@
 import logging
-from typing import TypeVar, Callable, Optional, List
+import uuid
+from inspect import signature
+from typing import TypeVar, Callable, Optional, List, Union
 
 from fastapi import Depends, APIRouter, HTTPException
 from fastapi.requests import Request
@@ -8,23 +10,22 @@ from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from app.models import AuthToken
-
 logger = logging.getLogger(__name__)
 
 Model = TypeVar("Model")
-IdType = TypeVar("IdType")
+Identifier = Union[uuid.UUID.__class__, int.__class__, str.__class__]
 
 
 class CRUDRouter:
-    model: Model
-
-    id_type: IdType
-
     prefix: str
 
+    model: Model
+    id_type: Identifier
+
+    kwargs: dict
+
     get_session: Callable
-    get_auth_token: Callable
+    get_authentication: Callable
 
     request_schema: BaseModel.__class__
     create_request_schema: BaseModel.__class__
@@ -64,7 +65,7 @@ class CRUDRouter:
     def get_partial_update_url_pattern(prefix: str) -> str:
         return "/%s/{id}" % prefix
 
-    async def perform_retrieve(self, id: IdType, session: AsyncSession, *args, **kwargs) -> Model:
+    async def perform_retrieve(self, id: Identifier, session: AsyncSession, *args, **kwargs) -> Model:
         query = await session.execute(select(self.model).where(self.model.id == id))
         if instance := query.scalars().first():
             return instance
@@ -74,7 +75,7 @@ class CRUDRouter:
         query = await session.execute(select(self.model))
         return query.scalars().all()
 
-    async def perform_delete(self, id: IdType, session: AsyncSession, *args, **kwargs):
+    async def perform_delete(self, id: Identifier, session: AsyncSession, *args, **kwargs):
         await session.execute(delete(self.model).where(self.model.id == id))
         await session.commit()
 
@@ -84,7 +85,7 @@ class CRUDRouter:
         await session.commit()
         return instance
 
-    async def perform_update(self, id: IdType, data: BaseModel, session: AsyncSession, *args, **kwargs) -> Model:
+    async def perform_update(self, id: Identifier, data: BaseModel, session: AsyncSession, *args, **kwargs) -> Model:
         instance = await self.perform_retrieve(id=id, session=session, *args, **kwargs)
         for key, value in data.dict().items():
             setattr(instance, key, value)
@@ -92,10 +93,9 @@ class CRUDRouter:
         return instance
 
     async def perform_partial_update(
-            self, id: IdType, data: BaseModel, session: AsyncSession, *args, **kwargs
+            self, id: Identifier, data: BaseModel, session: AsyncSession, *args, **kwargs
     ) -> Model:
         instance = await self.perform_retrieve(id=id, session=session, *args, **kwargs)
-        # instance.__dict__.update(data.dict(exclude_none=True))
         for key, value in data.dict(exclude_none=True, exclude_unset=True).items():
             setattr(instance, key, value)
         await session.commit()
@@ -103,11 +103,11 @@ class CRUDRouter:
 
     def __init__(
             self,
-            model: Model.__class__,
-            id_type: IdType,
             prefix: str,
+            id_type: Identifier,
+            model: Model.__class__,
             get_session: Callable,
-            get_auth_token: Callable,
+            get_authentication: Callable,
             request_schema: Optional[BaseModel.__class__] = None,
             create_request_schema: Optional[BaseModel.__class__] = None,
             update_request_schema: Optional[BaseModel.__class__] = None,
@@ -117,13 +117,17 @@ class CRUDRouter:
             list_response_schema: Optional[BaseModel.__class__] = None,
             create_response_schema: Optional[BaseModel.__class__] = None,
             update_response_schema: Optional[BaseModel.__class__] = None,
-            partial_update_response_schema: Optional[BaseModel.__class__] = None
+            partial_update_response_schema: Optional[BaseModel.__class__] = None,
+            **kwargs
     ):
+        self.prefix = prefix
         self.model = model
         self.id_type = id_type
-        self.prefix = prefix
+        self.kwargs = kwargs
         self.get_session = get_session
-        self.get_auth_token = get_auth_token
+        self.get_authentication = get_authentication
+
+        authentication_return_type = signature(self.get_authentication).return_annotation
 
         self.request_schema = request_schema
         self.create_request_schema = request_schema
@@ -173,7 +177,7 @@ class CRUDRouter:
                 request: Request,
                 id: self.id_type,  # type: ignore
                 session: AsyncSession = Depends(self.get_session),
-                auth_token: AuthToken = Depends(self.get_auth_token)
+                auth_token: authentication_return_type = Depends(self.get_authentication)
         ) -> self.retrieve_response_schema:  # type: ignore
             logger.info(f"Пришел запрос на получение сущности типа {self.model.__name__} с id {id}")
             try:
@@ -187,7 +191,7 @@ class CRUDRouter:
         async def list(
                 request: Request,
                 session: AsyncSession = Depends(self.get_session),
-                auth_token: AuthToken = Depends(self.get_auth_token)
+                auth_token: authentication_return_type = Depends(self.get_authentication)
         ) -> self.list_response_schema:  # type: ignore
             logger.info(f"Пришел завпрос на получение списка сущностей типа {self.model.__name__}")
             try:
@@ -202,7 +206,7 @@ class CRUDRouter:
                 request: Request,
                 id: self.id_type,  # type: ignore
                 session: AsyncSession = Depends(self.get_session),
-                auth_token: AuthToken = Depends(self.get_auth_token)
+                auth_token: authentication_return_type = Depends(self.get_authentication)
         ):
             logger.info(f"Пришел завпрос на удаление сущности типа {self.model.__name__}")
             try:
@@ -216,7 +220,7 @@ class CRUDRouter:
                 request: Request,
                 data: self.create_request_schema,  # type: ignore
                 session: AsyncSession = Depends(self.get_session),
-                auth_token: AuthToken = Depends(self.get_auth_token)
+                auth_token: authentication_return_type = Depends(self.get_authentication)
         ) -> self.create_response_schema:  # type: ignore
             logger.info(f"Пришел запрос на создание сущности типа {self.model.__name__}: {data}")
             try:
@@ -232,7 +236,7 @@ class CRUDRouter:
                 id: self.id_type,  # type: ignore
                 data: self.update_request_schema,  # type: ignore
                 session: AsyncSession = Depends(self.get_session),
-                auth_token: AuthToken = Depends(self.get_auth_token)
+                auth_token: authentication_return_type = Depends(self.get_authentication)
         ) -> self.update_response_schema:  # type: ignore
             logger.info(f"Пришел запрос на обновление сущности типа {self.model.__name__} с id {id}: {data}")
             try:
@@ -250,7 +254,7 @@ class CRUDRouter:
                 id: self.id_type,  # type: ignore
                 data: self.partial_update_request_schema,  # type: ignore
                 session: AsyncSession = Depends(self.get_session),
-                auth_token: AuthToken = Depends(self.get_auth_token)
+                auth_token: authentication_return_type = Depends(self.get_authentication)
         ) -> self.partial_update_response_schema:  # type: ignore
             logger.info(f"Пришел запрос на частичное обновление сущности типа {self.model.__name__} с id {id}: {data}")
             try:
