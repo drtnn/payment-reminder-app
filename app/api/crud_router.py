@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 Model = TypeVar("Model")
 Authentication = TypeVar("Authentication")
-IdentifierType = TypeVar("IdentifierType", uuid.UUID, int, str)
+IdentifierType = TypeVar("IdentifierType", uuid.UUID.__class__, int.__class__, str.__class__)
 
 
 class AllOptionalFields(ModelMetaclass):
@@ -36,7 +36,7 @@ def get_all_optional_fields_model(model: BaseModel.__class__):
     return AllOptionalFieldsModel
 
 
-class CRUDRouterGeneric:
+class RouterGeneric:
     prefix: str
 
     model: Model
@@ -67,7 +67,7 @@ class CRUDRouterGeneric:
             self,
             prefix: str,
             identifier_type: IdentifierType,
-            model: Model.__class__,
+            model: Model,
             get_session: Callable,
             get_authentication: Callable,
             request_schema: Optional[BaseModel.__class__] = None,
@@ -120,6 +120,9 @@ class CRUDRouterGeneric:
         if partial_update_response_schema:
             self.partial_update_response_schema = partial_update_response_schema
 
+        self.__register_actions()
+
+    def __register_actions(self):
         for action in self.CRUD_ACTIONS:
             try:
                 register_action = getattr(self, f"register_{action}_action")
@@ -205,6 +208,9 @@ class ListRouterMixin:
         return query.scalars().all()
 
     def register_list_action(self, *args, **kwargs):
+        if not self.list_response_schema:
+            raise ValueError("list_response_schema must not be None")
+
         async def list(
                 request: Request,
                 session: AsyncSession = Depends(self.get_session),
@@ -292,12 +298,16 @@ class CreateRouterMixin:
         return "/%s" % self.prefix
 
     async def perform_create(self, data: BaseModel, session: AsyncSession, *args, **kwargs) -> Model:
+        # TODO: Error if entity exists
         instance = self.model(**data.dict())
         session.add(instance)
         await session.commit()
         return instance
 
     def register_create_action(self, *args, **kwargs):
+        if not (self.create_request_schema and self.create_response_schema):
+            raise ValueError("create_request_schema and create_response_schema must not be None")
+
         async def create(
                 request: Request,
                 data: self.create_request_schema,  # type: ignore
@@ -352,6 +362,9 @@ class UpdateRouterMixin:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
 
     def register_update_action(self, *args, **kwargs):
+        if not (self.update_request_schema and self.update_response_schema):
+            raise ValueError("update_request_schema and update_response_schema must not be None")
+
         async def update(
                 request: Request,
                 id: self.identifier_type,  # type: ignore
@@ -407,6 +420,9 @@ class PartialUpdateRouterMixin:
         return instance
 
     def register_partial_update_action(self, *args, **kwargs):
+        if not (self.partial_update_request_schema and self.partial_update_response_schema):
+            raise ValueError("partial_update_request_schema and partial_update_response_schema must not be None")
+
         async def partial_update(
                 request: Request,
                 id: self.identifier_type,  # type: ignore
@@ -432,6 +448,13 @@ class PartialUpdateRouterMixin:
         )(partial_update)
 
 
-class ModelCRUDRouter(CRUDRouterGeneric, RetrieveRouterMixin, ListRouterMixin, DeleteRouterMixin, CreateRouterMixin,
-                      UpdateRouterMixin, PartialUpdateRouterMixin):
+class ModelCRUDRouter(
+    RouterGeneric,
+    RetrieveRouterMixin,
+    ListRouterMixin,
+    DeleteRouterMixin,
+    CreateRouterMixin,
+    UpdateRouterMixin,
+    PartialUpdateRouterMixin
+):
     pass

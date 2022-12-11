@@ -1,14 +1,14 @@
-from pydantic import BaseModel, Field
+from typing import Optional, Literal
 
-from app.models import User
+from pydantic import BaseModel, Field
 
 
 class UserSchema(BaseModel):
     id: int = Field(title="Telegram User Id", readonly=True)
-    username: str = Field(title="Telegram User Username")
-    full_name: str = Field(title="Telegram User Full Name")
-    language: User.LANGUAGE_TYPES = Field(title="Telegram User Language")
+    username: Optional[str] = Field(title="Telegram User Username", max_length=255)
+    full_name: str = Field(title="Telegram User Full Name", max_length=255)
+    language: Literal["ru", "en"] = Field(title="Telegram User Language", default="ru")
 
 
-class UserCreateSchema(BaseModel):
+class UserCreateRequestSchema(UserSchema):
     id: int = Field(title="Telegram User Id")
