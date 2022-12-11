@@ -101,6 +101,8 @@ class RouterGeneric:
             self.update_request_schema = update_request_schema
         if partial_update_request_schema:
             self.partial_update_request_schema = partial_update_request_schema
+        elif update_request_schema:
+            self.partial_update_request_schema = get_all_optional_fields_model(update_request_schema)
 
         self.response_schema = response_schema
         self.retrieve_response_schema = response_schema
@@ -416,8 +418,9 @@ class PartialUpdateRouterMixin:
         if instance := query.scalars().first():
             for key, value in data.dict(exclude_none=True, exclude_unset=True).items():
                 setattr(instance, key, value)
-        await session.commit()
-        return instance
+            await session.commit()
+            return instance
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
 
     def register_partial_update_action(self, *args, **kwargs):
         if not (self.partial_update_request_schema and self.partial_update_response_schema):

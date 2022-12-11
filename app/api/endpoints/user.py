@@ -3,20 +3,18 @@ from fastapi import APIRouter
 from app.api.crud_router import ModelCRUDRouter
 from app.api.deps import get_session, BearerTokenAuthentication
 from app.models import User
-from app.schemas.user import UserSchema, UserCreateRequestSchema
+from app.schemas.user import UserSchema, UserUpdateRequestSchema
 
 router = APIRouter()
-
-token_authentication = BearerTokenAuthentication()
 
 user_crud_router = ModelCRUDRouter(
     prefix="user",
     model=User,
     identifier_type=int,
     get_session=get_session,
-    get_authentication=token_authentication,
+    get_authentication=BearerTokenAuthentication.get_authentication,
     request_schema=UserSchema,
-    request_create_schema=UserCreateRequestSchema,
+    update_request_schema=UserUpdateRequestSchema,
     response_schema=UserSchema
 )
 

@@ -11,7 +11,7 @@ class User(TimestampableMixin):
     RUSSIAN = "ru"
     ENGLISH = "en"
 
-    LANGUAGE_TYPES = {RUSSIAN, ENGLISH}
+    LANGUAGE_TYPES = (RUSSIAN, ENGLISH)
 
     id: int = field(metadata={"sa": Column(Integer, primary_key=True, index=True)})
     full_name: str = field(metadata={"sa": Column(String(255), nullable=False)})

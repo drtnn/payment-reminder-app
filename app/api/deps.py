@@ -16,34 +16,32 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-async def get_auth_token(session: AsyncSession, authorization: str) -> Optional[AuthToken]:
+async def get_authentication_token(session: AsyncSession, authorization: str) -> Optional[AuthToken]:
     token = authorization.replace(BearerTokenAuthentication.BEARER, "").strip()
     auth_token: Optional[AuthToken] = (await session.execute(select(AuthToken).where(AuthToken.id == token))).first()
     return auth_token
 
 
 class BearerTokenAuthentication:
-    auto_error: bool
+    auto_error: bool = True
 
     BEARER: str = "Bearer"
     AUTHORIZATION_REGEX = r"^%s [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" % BEARER
 
-    def __init__(self, auto_error: bool = True):
-        self.auto_error = auto_error
-
-    async def __call__(self, request: Request, session: AsyncSession = Depends(get_session)) -> Optional[AuthToken]:
+    @classmethod
+    async def get_authentication(
+            cls, request: Request, session: AsyncSession = Depends(get_session)
+    ) -> Optional[AuthToken]:
         authorization = request.headers.get("Authorization", "")
         if (
-                re.compile(self.AUTHORIZATION_REGEX).match(authorization)
-                and (token := await get_auth_token(session, authorization))
+                re.compile(cls.AUTHORIZATION_REGEX).match(authorization)
+                and (token := await get_authentication_token(session, authorization))
         ):
             return token
         else:
-            if self.auto_error:
+            if cls.auto_error:
                 raise HTTPException(
                     status_code=HTTP_401_UNAUTHORIZED,
                     detail="Not authenticated",
-                    headers={"WWW-Authenticate": self.BEARER},
+                    headers={"WWW-Authenticate": cls.BEARER},
                 )
-            else:
-                return None
