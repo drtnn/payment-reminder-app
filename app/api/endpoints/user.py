@@ -7,12 +7,14 @@ from app.schemas.user import UserSchema, UserUpdateRequestSchema
 
 router = APIRouter()
 
+authentication_scheme = BearerTokenAuthentication()
+
 user_crud_router = ModelCRUDRouter(
     prefix="user",
     model=User,
     identifier_type=int,
     get_session=get_session,
-    get_authentication=BearerTokenAuthentication.get_authentication,
+    get_authentication=authentication_scheme,
     request_schema=UserSchema,
     update_request_schema=UserUpdateRequestSchema,
     response_schema=UserSchema
