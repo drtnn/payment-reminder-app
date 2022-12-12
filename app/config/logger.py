@@ -4,8 +4,8 @@ from pydantic import BaseModel
 class LoggerConfig(BaseModel):
     """Logging configuration to be set for the server"""
 
-    LOG_FORMAT: str = "%(levelprefix)s | %(asctime)s | %(message)s"
-    LOG_LEVEL: str = "DEBUG"
+    LOG_FORMAT: str = "[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s"
+    LOG_LEVEL: str = "INFO"
 
     # Logging config
     version = 1
@@ -26,6 +26,7 @@ class LoggerConfig(BaseModel):
     }
     loggers = {
         "app": {"handlers": ["default"], "level": LOG_LEVEL},
+        "facrud_router": {"handlers": ["default"], "level": LOG_LEVEL},
     }
 
 

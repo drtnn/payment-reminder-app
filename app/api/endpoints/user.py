@@ -1,6 +1,6 @@
+from facrud_router import ModelCRUDRouter
 from fastapi import APIRouter
 
-from app.api.crud_router import ModelCRUDRouter
 from app.api.deps import get_session, BearerTokenAuthentication
 from app.models import User
 from app.schemas.user import UserSchema, UserUpdateRequestSchema
