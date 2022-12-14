@@ -21,7 +21,7 @@ greenlet = "^2.0.1"
 phonenumbers = "^8.13.1"
 babel = "^2.11.0"
 uvicorn = "^0.20.0"
-facrud-router = "^0.1.0"
+facrud-router = "0.1.1"
 cffi = "1.15.0"
 
 [tool.poetry.dev-dependencies]

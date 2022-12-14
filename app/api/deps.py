@@ -38,3 +38,6 @@ class BearerTokenAuthentication(HTTPBearer):
                 detail="Not authenticated",
                 headers={"WWW-Authenticate": "Bearer"},
             )
+
+
+authentication_scheme = BearerTokenAuthentication()

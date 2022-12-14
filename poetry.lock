@@ -223,7 +223,7 @@ test = ["pytest (>=6)"]
 
 [[package]]
 name = "facrud-router"
-version = "0.1.0"
+version = "0.1.1"
 description = "FastApi CRUD router for SQLAlchemy"
 category = "main"
 optional = false
@@ -749,7 +749,7 @@ standard = ["colorama (>=0.4)", "httptools (>=0.5.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "4142f93e77d2a58470c427f41a382640bf6171cfc742e548d9f948f964729ca6"
+content-hash = "ddf525f6b4f4c9f5b5c94d10993ba47229e09d87b8f8e7c92a2e88f65251df66"
 
 [metadata.files]
 alembic = [
@@ -1013,8 +1013,8 @@ exceptiongroup = [
     { file = "exceptiongroup-1.0.4.tar.gz", hash = "sha256:bd14967b79cd9bdb54d97323216f8fdf533e278df937aa2a90089e7d6e06e5ec" },
 ]
 facrud-router = [
-    { file = "facrud_router-0.1.0-py3-none-any.whl", hash = "sha256:eb38caeaf5872409d068cb5b6447b5986c578556ab8d800e2cbd0cd5474194f2" },
-    { file = "facrud_router-0.1.0.tar.gz", hash = "sha256:3ab9d7e85daba3cca8f6c45000c800effa54c509a4778ae3cc64d918b3ab9bda" },
+    { file = "facrud_router-0.1.1-py3-none-any.whl", hash = "sha256:f27e2305e5c1de84d8ce996b21a37599a27893cf8d1a9975822d2e438e573bdc" },
+    { file = "facrud_router-0.1.1.tar.gz", hash = "sha256:011f331c077a3366ba14c75449d9033d955b940b994736f1e577dc715abcb4ef" },
 ]
 fastapi = [
     { file = "fastapi-0.88.0-py3-none-any.whl", hash = "sha256:263b718bb384422fe3d042ffc9a0c8dece5e034ab6586ff034f6b4b1667c3eee" },
